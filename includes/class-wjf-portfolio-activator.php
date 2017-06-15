@@ -22,6 +22,7 @@
  */
 class Wjf_Portfolio_Activator {
 
+
 	/**
 	 * Short Description. (use period)
 	 *
@@ -30,6 +31,13 @@ class Wjf_Portfolio_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
+
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wjf-portfolio-admin.php';
+
+        Wjf_Portfolio_Admin::new_cpt_portfolio();
+        Wjf_Portfolio_Admin::new_cpt_taxonomy_type();
+
+        flush_rewrite_rules();
 
 	}
 

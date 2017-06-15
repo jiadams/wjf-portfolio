@@ -2,3 +2,74 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+
+.works-container {
+    margin: 30px auto;
+    position: relative;
+}
+
+.grid-item {
+    width: 100%;
+    border: 1px solid #1e1e1e;
+    margin-top: -5px;
+}
+
+.works-img-container {
+    position: relative;
+    z-index: 999;
+}
+
+.works-img-container img {
+    max-width: 100%
+}
+
+.works-title-container {
+    background-color: #8BC34A !important;
+    color: #fff;
+    position: relative;
+}
+
+.works-title-container h3 {
+    padding: 10px 15px;
+    margin: 0;
+}
+
+.works-title-container a {
+    color: #fff;
+}
+
+.works-title-container a:hover, .works-title-container a:active {
+    color: #ffffff;
+}
+
+.works-title-container .entry-arrow {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    margin-left: -7px;
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+    border-width: 1px;
+    border-style: solid;
+    border: none;
+    background-color: #03A9F4;
+}
+
+@media screen and (min-width: 768px) {
+    .works-container {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+    .grid-item {
+        width: 50%;
+    }
+}
+
+@media screen and (min-width: 992px) {
+    .grid-item {
+        width: 33.3333333333333333333%;
+    }
+}

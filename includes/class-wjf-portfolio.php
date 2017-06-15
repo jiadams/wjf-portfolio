@@ -27,6 +27,11 @@
  * @subpackage Wjf_Portfolio/includes
  * @author     Josh Adams <jadams@wjfmakreting.com>
  */
+
+function tl_save_error() {
+    update_option( 'plugin_error',  ob_get_contents() );
+}
+
 class Wjf_Portfolio {
 
 	/**
@@ -57,6 +62,15 @@ class Wjf_Portfolio {
 	 */
 	protected $version;
 
+    /**
+     * The options set for this plugin.
+     *
+     * @since    1.0.0
+     * @access   protected
+     * @var      array    $options    The options set for this plugin.
+     */
+    private $options;
+
 	/**
 	 * Define the core functionality of the plugin.
 	 *
@@ -75,6 +89,7 @@ class Wjf_Portfolio {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_template_hooks();
 
 	}
 
@@ -109,9 +124,17 @@ class Wjf_Portfolio {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wjf-portfolio-i18n.php';
 
 		/**
-		 * The class responsible for defining all actions that occur in the admin area.
+		 * The class responsible for defining actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wjf-portfolio-admin.php';
+		/**
+		 * The class responsible for defining actions that occur in the admin settings area.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wjf-portfolio-admin-settings.php';
+		/**
+		 * The class responsible for loading the template for the works page into the page templates.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wjf-portfolio-template.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -149,12 +172,30 @@ class Wjf_Portfolio {
 	 */
 	private function define_admin_hooks() {
 
+		//Admin Functionality
 		$plugin_admin = new Wjf_Portfolio_Admin( $this->get_plugin_name(), $this->get_version() );
+		//Admin Settings
+		$plugin_admin_settings = new Wjf_Portfolio_Admin_Settings( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'init', $plugin_admin, 'new_cpt_portfolio' );
+		$this->loader->add_action( 'init', $plugin_admin, 'new_cpt_taxonomy_type' );
+		$this->loader->add_action( 'admin_menu', $plugin_admin_settings, 'add_menu' );
+		if ( ! empty ( $GLOBALS['pagenow'] )
+		    and ( 
+		    	('edit.php' === $GLOBALS['pagenow'] 
+		    	and $_GET['post_type'] === 'work' and $_GET['page'] === 'wjf-portfolio-settings' )
+		        	or 'options.php' === $GLOBALS['pagenow']
+		    )
+		) {
+		    $this->loader->add_action( 'admin_init', $plugin_admin_settings, 'register_settings' );
+		    $this->loader->add_action( 'admin_init', $plugin_admin_settings, 'register_sections' );
+		    $this->loader->add_action( 'admin_init', $plugin_admin_settings, 'register_fields' );
+		}
 
 	}
+
 
 	/**
 	 * Register all of the hooks related to the public-facing functionality
@@ -169,6 +210,25 @@ class Wjf_Portfolio {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->loader->add_filter( 'the_content', $plugin_public, 'append_works' );
+
+	}
+
+	/**
+	 * Register all of the hooks related to the template area functionality
+	 * of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_template_hooks() {
+
+		$plugin_templates = new WJF_Portfolio_Template( $this->get_plugin_name(), $this->get_version() );
+
+		// Loop
+		$this->loader->add_action( 'wjf-portfolio-before-loop', $plugin_templates, 'before_work_loop', 10, 2 );
+		$this->loader->add_action( 'wjf-portfolio-loop-content', $plugin_templates, 'list_work_content', 10, 2 );
+		$this->loader->add_action( 'wjf-portfolio-after-loop', $plugin_templates, 'after_work_loop', 10, 2 );
 
 	}
 
