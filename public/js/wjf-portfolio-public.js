@@ -21562,7 +21562,7 @@ var WorksBox = function (_React$Component) {
                 show: false
 
             },
-            activeTaxonomy: [9, 10]
+            activeTaxonomy: -1
         };
         return _this;
     }
@@ -21595,8 +21595,16 @@ var WorksBox = function (_React$Component) {
         }
     }, {
         key: 'taxonomyClickHandler',
-        value: function taxonomyClickHandler(termId, e) {
+        value: function taxonomyClickHandler(activeTaxonomy, e) {
             e.preventDefault();
+            if (activeTaxonomy !== this.state.activeTaxonomy) {
+                this.setState({ activeTaxonomy: activeTaxonomy });
+                if (activeTaxonomy === -1) {
+                    this._fetchWorks();
+                } else {
+                    this._fetchTaxonomy(activeTaxonomy);
+                }
+            }
         }
     }, {
         key: 'assignView',
@@ -21633,7 +21641,6 @@ var WorksBox = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            console.log(JSON.stringify(this.state.activeTaxonomy));
             var works = this._getWorks(),
                 taxonomies = this._getTaxonomies();
             return _react2.default.createElement(
@@ -21670,7 +21677,8 @@ var WorksBox = function (_React$Component) {
                         'div',
                         { className: 'grid' },
                         works
-                    )
+                    ),
+                    'd                    '
                 )
             );
         }
@@ -21678,23 +21686,9 @@ var WorksBox = function (_React$Component) {
         /*Getters and Setters*/
 
     }, {
-        key: '_getTaxonomies',
-        value: function _getTaxonomies() {
-            var _this2 = this;
-
-            return this.state.taxonomies.map(function (taxonomy) {
-                return _react2.default.createElement(_taxonomySort2.default, {
-                    termId: taxonomy.term_id,
-                    key: taxonomy.term_id,
-                    termTitle: taxonomy.name,
-                    active: taxonomy.active,
-                    taxonomyClickHandler: _this2.taxonomyClickHandler.bind(_this2, taxonomy.term_id) });
-            });
-        }
-    }, {
         key: '_getWorks',
         value: function _getWorks() {
-            var _this3 = this;
+            var _this2 = this;
 
             return this.state.works.map(function (work) {
                 return _react2.default.createElement(_work2.default, {
@@ -21702,7 +21696,21 @@ var WorksBox = function (_React$Component) {
                     key: work.ID,
                     postTitle: work.post_title,
                     postImage: work.post_image,
-                    handleWorkClick: _this3.handleWorkClick.bind(_this3, work.ID) });
+                    handleWorkClick: _this2.handleWorkClick.bind(_this2, work.ID) });
+            });
+        }
+    }, {
+        key: '_getTaxonomies',
+        value: function _getTaxonomies() {
+            var _this3 = this;
+
+            return this.state.taxonomies.map(function (taxonomy) {
+                return _react2.default.createElement(_taxonomySort2.default, {
+                    termId: taxonomy.term_id,
+                    key: taxonomy.term_id,
+                    termTitle: taxonomy.name,
+                    active: taxonomy.active,
+                    taxonomyClickHandler: _this3.taxonomyClickHandler.bind(_this3, taxonomy.term_id) });
             });
         }
     }, {
@@ -21727,7 +21735,7 @@ var WorksBox = function (_React$Component) {
             termId = JSON.stringify(termId);
             jQuery.ajax({
                 method: 'GET',
-                url: '/wp-json/wjf-portfolio/v1/tax/' + termId,
+                url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
                 success: function success(works) {
                     _this5._setWorks(works.posts);
                 }

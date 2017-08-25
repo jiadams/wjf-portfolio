@@ -32,7 +32,7 @@ export default class WorksBox extends React.Component {
                                 show: false,
 
                             },
-                            activeTaxonomy: [9,10],
+                            activeTaxonomy: -1,
                         };
     }
 
@@ -60,8 +60,16 @@ export default class WorksBox extends React.Component {
         return; 
     }
 
-    taxonomyClickHandler(termId, e) {
+    taxonomyClickHandler(activeTaxonomy, e) {
         e.preventDefault();
+        if (activeTaxonomy !== this.state.activeTaxonomy) {
+            this.setState( { activeTaxonomy });
+            if (activeTaxonomy === -1) {
+                this._fetchWorks()
+            } else {
+                this._fetchTaxonomy( activeTaxonomy );
+            }
+        }
     }
 
     assignView (workId) {
@@ -122,23 +130,12 @@ export default class WorksBox extends React.Component {
                             <div className="grid">
                                 { works }
                             </div>
-                        </div>
+     d                    </div>
                     </div> ) ;
 
     }
 
     /*Getters and Setters*/
-
-    _getTaxonomies() {
-        return this.state.taxonomies.map(( taxonomy ) => {
-            return (    <TaxonomySort
-                            termId                  = { taxonomy.term_id }
-                            key                     = { taxonomy.term_id }
-                            termTitle               = { taxonomy.name } 
-                            active                  = { taxonomy.active } 
-                            taxonomyClickHandler    = { this.taxonomyClickHandler.bind(this, taxonomy.term_id) }/>);
-        })
-    }
 
     _getWorks() {
         return this.state.works.map(( work ) => {
@@ -152,6 +149,16 @@ export default class WorksBox extends React.Component {
         });
     }
 
+    _getTaxonomies() {
+        return this.state.taxonomies.map(( taxonomy ) => {
+            return (    <TaxonomySort
+                            termId                  = { taxonomy.term_id }
+                            key                     = { taxonomy.term_id }
+                            termTitle               = { taxonomy.name } 
+                            active                  = { taxonomy.active } 
+                            taxonomyClickHandler    = { this.taxonomyClickHandler.bind(this, taxonomy.term_id) }/>);
+        })
+    }
 
     _fetchWorks() {
         jQuery.ajax({
@@ -168,7 +175,7 @@ export default class WorksBox extends React.Component {
         termId = JSON.stringify(termId);
         jQuery.ajax({
             method: 'GET',
-            url: '/wp-json/wjf-portfolio/v1/tax/' + termId,
+            url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
             success: ( works ) => {
                 this._setWorks( works.posts );
             }

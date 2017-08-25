@@ -322,7 +322,7 @@ class Wjf_Portfolio_Public {
             $atts['tax_query']      =   array(
                                         array(
                                             'taxonomy'  => 'work_type',
-                                            'field'     => 'slug',
+                                            'field'     => 'trem',
                                             'terms'     => $data['term_id'],
                                         )
                                     );
@@ -333,8 +333,6 @@ class Wjf_Portfolio_Public {
         $defaults['quantity']       = 10;
         $defaults['tax_query']      = [];
         $args                       = shortcode_atts( $defaults, $atts, 'wjf-portfolio' );
-
-        return  $this->get_works($args);
 
         $works->posts               = $this->get_works($args)->posts;
 
