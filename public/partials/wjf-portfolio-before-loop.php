@@ -13,15 +13,15 @@
 
 ?>
 
-<div class="works-container">
-    <?php 
-        $terms = get_terms( 'work_type' );
-        if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) :?>
-            <ul class="works-tax-list">
-                <li>All</li>
-            <?php foreach ( $terms as $term ) : ?>
-                <li> <?php echo $term->name; ?> </li>
-            <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-    <div class="grid">
+    <div class="clearfix" id="works-box">
+        <?php 
+            /*$terms = get_terms( 'work_type' );
+            if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) :?>
+                <ul class="works-tax-list">
+                    <li><a href="#" data-tax-type="" class="active">All</a></li>
+                <?php foreach ( $terms as $term ) : ?>
+                    <li> <a href="#" data-tax-type="<?php echo $term->slug ?>"><?php echo $term->name; ?> </li>
+                <?php endforeach; ?>
+                </ul>
+            <?php endif;*/ ?>
+        <div class="grid">

@@ -4,20 +4,129 @@
  */
 
 
+/* Grid
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.container {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box; }
+.works-container > .row {
+    margin-left: 0;
+    margin-right: 0; }
+.column,
+.columns {
+    width: 100%;
+    float: left;
+    box-sizing: border-box; }
+
+/* For devices larger than 550px */
+@media (min-width: 990px) {
+    .container {
+        width: 80%; }
+    .column,
+    .columns {
+        margin-left: 4%; }
+    .columns.no-gutter {
+        margin-left: 0;
+    }
+    .column:first-child,
+    .columns:first-child {
+        margin-left: 0; }
+
+    .one.column,
+    .one.columns                    { width: 4.66666666667%; }
+    .two.columns                    { width: 13.3333333333%; }
+    .three.columns                  { width: 22%;            }
+    .four.columns                   { width: 30.6666666667%; }
+    .five.columns                   { width: 39.3333333333%; }
+    .five.columns.no-gutter         { width: 43.3333333333%; }
+    .six.columns                    { width: 48%;            }
+    .seven.columns                  { width: 56.6666666667%; }
+    .eight.columns                  { width: 65.3333333333%; }
+    .nine.columns                   { width: 74.0%;          }
+    .ten.columns                    { width: 82.6666666667%; }
+    .eleven.columns                 { width: 91.3333333333%; }
+    .twelve.columns                 { width: 100%; margin-left: 0; }
+
+    .one-third.column               { width: 30.6666666667%; }
+    .two-thirds.column              { width: 65.3333333333%; }
+
+    .one-half.column                { width: 48%; }
+
+    /* Offsets */
+    .offset-by-one.column,
+    .offset-by-one.columns          { margin-left: 8.66666666667%; }
+    .offset-by-two.column,
+    .offset-by-two.columns          { margin-left: 17.3333333333%; }
+    .offset-by-three.column,
+    .offset-by-three.columns        { margin-left: 26%;            }
+    .offset-by-four.column,
+    .offset-by-four.columns         { margin-left: 34.6666666667%; }
+    .offset-by-five.column,
+    .offset-by-five.columns         { margin-left: 43.3333333333%; }
+    .offset-by-six.column,
+    .offset-by-six.columns          { margin-left: 52%;            }
+    .offset-by-seven.column,
+    .offset-by-seven.columns        { margin-left: 60.6666666667%; }
+    .offset-by-eight.column,
+    .offset-by-eight.columns        { margin-left: 69.3333333333%; }
+    .offset-by-nine.column,
+    .offset-by-nine.columns         { margin-left: 78.0%;          }
+    .offset-by-ten.column,
+    .offset-by-ten.columns          { margin-left: 86.6666666667%; }
+    .offset-by-eleven.column,
+    .offset-by-eleven.columns       { margin-left: 95.3333333333%; }
+
+    .offset-by-one-third.column,
+    .offset-by-one-third.columns    { margin-left: 34.6666666667%; }
+    .offset-by-two-thirds.column,
+    .offset-by-two-thirds.columns   { margin-left: 69.3333333333%; }
+
+    .offset-by-one-half.column,
+    .offset-by-one-half.columns     { margin-left: 52%; }
+
+}
+
+/* Clearing
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+/* Self Clearing Goodness */
+.container:after,
+.row:after,
+.u-cf {
+  content: "";
+  display: table;
+  clear: both; }
+
+
 .works-container {
-    margin: 30px auto;
+    margin: 0 auto 60px;
     position: relative;
 }
 
 .grid-item {
     width: 100%;
-    border: 1px solid #1e1e1e;
     margin-top: -5px;
 }
 
-.works-img-container {
+a.work-item {
     position: relative;
-    z-index: 999;
+    display: block;
+    width: 100%;
+    text-decoration: none;
+    -webkit-transition: all .2s ease-out; /* Safari */
+    transition: all .2s ease-out;
+    border: 1px solid #1e1e1e;
+}
+
+a.work-item:hover, a.work-item:active {
+    z-index: 9999;
+    text-decoration: none;
+    transform: scale(1.005);
+    -webkit-transform: scale(1.005);
 }
 
 .works-img-container img {
@@ -44,12 +153,12 @@
 }
 
 .works-title-container .entry-arrow {
-    width: 15px;
-    height: 15px;
+    width: 10px;
+    height: 10px;
     position: absolute;
-    top: -7px;
+    top: -5px;
     left: 50%;
-    margin-left: -7px;
+    margin-left: -5px;
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
     border-width: 1px;
@@ -58,18 +167,115 @@
     background-color: #03A9F4;
 }
 
+.works-images {
+    max-width: 100%;
+}
+
+/*Taxonomy Classes */
+
+ul.taxonomy-list {
+    padding-left: 0;
+}
+
+ul.taxonomy-list>li.taxonomy-list-item:first-child {
+    margin-left: 0;
+}
+
+ul.taxonomy-list>li.taxonomy-list-item {
+    display: block;
+    margin-left: 10px;
+    float: left;
+}
+
+ul.taxonomy-list>li.taxonomy-list-item a {
+    padding: 5px 15px;
+    display: block;
+    border-radius: 5px;
+}
+
+ul.taxonomy-list>li.taxonomy-list-item a:focus {
+    text-decoration: none;
+    color: #03A9F4;
+}
+
+ul.taxonomy-list>li.taxonomy-list-item a:hover, ul.taxonomy-list>li.taxonomy-list-item a.active {
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #03A9F4;
+}
+
+/*Works View*/
+
+.works-img-container {
+    border: 1px solid;
+    border-color: #e1e1e1;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+.works-view-container {
+    width: 100%;
+    -webkit-transition: all .2s ease-out; /* Safari */
+    transition: all .2s ease-out;
+}
+
+.works-view-container.inactive {
+    height: 0;
+}
+
+.works-view-container.active {
+    height: auto;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 17px 1px;
+    border: 1px solid #e1e1e1;
+    background-color: #f8f8f8;
+    margin-bottom: 30px;
+}
+
+.works-view-nav-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.work-view-content {
+    position: relative;
+    padding: 63px 30px 30px 30px;;
+}
+
+.works-nav-buttons a {
+    text-align: center;
+    height: 40px;
+    width: 40px;
+    background-color: #ffffff;
+    border: solid 1px #e1e1e1;
+    display: block;
+    float: left;
+    color: #838383;
+}
+
+.works-nav-buttons a .dashicons, .works-nav-buttons a .dashicons-before:before {
+    font-size: .9rem;
+    line-height: 40px;
+    text-decoration: none;
+}
+
+.works-nav-buttons a:hover, .works-nav-buttons a:active {
+    background-color: #03A9F4;
+    cursor: pointer; 
+}
+
 @media screen and (min-width: 768px) {
-    .works-container {
-        padding-left: 30px;
-        padding-right: 30px;
+    .container.works-container {
+        padding: 0px 50px;
     }
     .grid-item {
         width: 50%;
+        float: left;
     }
 }
 
 @media screen and (min-width: 992px) {
     .grid-item {
-        width: 33.3333333333333333333%;
+        width: 33.3333333333%;
     }
 }

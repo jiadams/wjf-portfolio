@@ -131,6 +131,8 @@ class Wjf_Portfolio_Admin {
         $args['show_in_menu']                           = TRUE;
         $args['show_in_nav_menu']                       = TRUE;
         $args['show_ui']                                = TRUE;
+        $args['show_in_rest']                           = TRUE;
+        $args['rest_base']                              = 'works';
         $args['supports']                               = array( 'title', 'editor', 'thumbnail' );
         $args['taxonomies']                             = array();
 

@@ -1,0 +1,46 @@
+{
+  "name": "wjf-portfolio",
+  "version": "1.0.0",
+  "description": "Javascript for wjf-portfolio wp addon",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiadams/wjf-portfolio.git"
+  },
+  "keywords": [
+    "wp",
+    "portfolio",
+    "wjf"
+  ],
+  "author": "Josh Adams",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jiadams/wjf-portfolio/issues"
+  },
+  "homepage": "https://github.com/jiadams/wjf-portfolio#readme",
+  "dependencies": {
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^7.2.3",
+    "babel-plugin-react-html-attrs": "^2.0.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babelify": "^7.3.0",
+    "browserify": "^14.4.0",
+    "eslint-plugin-react": "^7.2.1",
+    "gulp": "^3.9.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-eslint": "^4.0.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-uglify": "^3.0.0",
+    "pump": "^1.0.2",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}

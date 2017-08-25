@@ -1,4 +1,4 @@
-<?php
+    <?php
 /**
 * WJF Portfolio loop content
 *
@@ -11,10 +11,10 @@
 * @subpackage Wjf_Portfolio/public/partials
 */
 ?>
-<div class="grid-item" >
+<div class="grid-item">
     <div class="works-img-container">
         <a href="<?php echo esc_url( get_post_permalink() ) ?>">
-            <img src="<?php the_post_thumbnail_url('full')?>" alt="<?php the_title(); ?>">
+            <img src="<?php the_post_thumbnail_url('full')?>" alt="<?php the_title(); ?>" height="">
         </a>
     </div>
     <div class="works-title-container">
