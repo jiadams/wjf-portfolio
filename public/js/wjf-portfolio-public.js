@@ -21296,14 +21296,14 @@ var TaxonomySort = function (_React$Component) {
         key: 'render',
         value: function render() {
             var termTitle = this.props.termTitle,
-                termActive = this.props.active,
+                activeTerm = this.props.activeTerm,
                 termId = this.props.termId;
             return _react2.default.createElement(
                 'li',
                 { className: 'taxonomy-list-item' },
                 _react2.default.createElement(
                     'a',
-                    { href: '#' + termId, onClick: this.props.taxonomyClickHandler, className: termActive ? ' active' : '', rel: 'nofollow' },
+                    { href: '#' + termId, onClick: this.props.taxonomyClickHandler, className: activeTerm == termId ? ' active' : '', rel: 'nofollow' },
                     termTitle
                 )
             );
@@ -21319,7 +21319,7 @@ exports.default = TaxonomySort;
 TaxonomySort.propTypes = {
     termId: _propTypes2.default.number,
     termTitle: _propTypes2.default.string,
-    active: _propTypes2.default.bool,
+    activeTerm: _propTypes2.default.number,
     taxonomyClickHandler: _propTypes2.default.func
 };
 
@@ -21550,8 +21550,7 @@ var WorksBox = function (_React$Component) {
             taxonomies: [{
                 term_id: -1,
                 name: 'All',
-                slug: 'all',
-                active: true
+                slug: 'all'
             }],
             currentView: {
                 id: null,
@@ -21600,7 +21599,7 @@ var WorksBox = function (_React$Component) {
             if (activeTaxonomy !== this.state.activeTaxonomy) {
                 this.setState({ activeTaxonomy: activeTaxonomy });
                 if (activeTaxonomy === -1) {
-                    this._fetchWorks();
+                    this._fetchAllWorks();
                 } else {
                     this._fetchTaxonomy(activeTaxonomy);
                 }
@@ -21636,7 +21635,7 @@ var WorksBox = function (_React$Component) {
     }, {
         key: 'componentWillMount',
         value: function componentWillMount() {
-            this._fetchWorks();
+            this._initialFetch();
         }
     }, {
         key: 'render',
@@ -21709,13 +21708,13 @@ var WorksBox = function (_React$Component) {
                     termId: taxonomy.term_id,
                     key: taxonomy.term_id,
                     termTitle: taxonomy.name,
-                    active: taxonomy.active,
+                    activeTerm: _this3.state.activeTaxonomy,
                     taxonomyClickHandler: _this3.taxonomyClickHandler.bind(_this3, taxonomy.term_id) });
             });
         }
     }, {
-        key: '_fetchWorks',
-        value: function _fetchWorks() {
+        key: '_initialFetch',
+        value: function _initialFetch() {
             var _this4 = this;
 
             jQuery.ajax({
@@ -21728,16 +21727,29 @@ var WorksBox = function (_React$Component) {
             });
         }
     }, {
+        key: '_fetchAllWorks',
+        value: function _fetchAllWorks() {
+            var _this5 = this;
+
+            jQuery.ajax({
+                method: 'GET',
+                url: '/wp-json/wjf-portfolio/v1/works/',
+                success: function success(works) {
+                    _this5._setWorks(works.posts);
+                }
+            });
+        }
+    }, {
         key: '_fetchTaxonomy',
         value: function _fetchTaxonomy(termId) {
-            var _this5 = this;
+            var _this6 = this;
 
             termId = JSON.stringify(termId);
             jQuery.ajax({
                 method: 'GET',
                 url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
                 success: function success(works) {
-                    _this5._setWorks(works.posts);
+                    _this6._setWorks(works.posts);
                 }
             });
         }
@@ -21751,9 +21763,6 @@ var WorksBox = function (_React$Component) {
     }, {
         key: '_setTaxonomies',
         value: function _setTaxonomies(taxonomies) {
-            taxonomies.map(function (taxonomy) {
-                taxonomy.active = false;
-            });
             this.setState({ taxonomies: this.state.taxonomies.concat(taxonomies) });
         }
     }, {

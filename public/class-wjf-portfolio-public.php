@@ -305,18 +305,27 @@ class Wjf_Portfolio_Public {
     public function add_api() {
         
         register_rest_route('wjf-portfolio/v1', '/works/', array (
-            'method' => 'GET',
-            'callback' => array($this, 'get_works_api'),
+            'method'                => 'GET',
+            'callback'              => array($this, 'get_works_api'),
         ));
 
-        register_rest_route('wjf-portfolio/v1', '/works/tax/(?P<term_id>[a-zA-Z0-9]+)', array (
-            'method' => 'GET',
-            'callback' => array($this, 'get_works_api'),
+        register_rest_route('wjf-portfolio/v1', '/works/tax/(?P<term_id>[0-9]+)', array (
+            'method'                => 'GET',
+            'callback'              => array($this, 'get_works_api'),
+            'args'                  => array(
+                                        'term_id' => array(
+                                            'validate_callback' => function($param, $request, $key) {
+                                                    return is_numeric( $param );
+                                                }
+                                            ),
+                                        ),
         ));
 
     }//add_api()
 
     public function get_works_api( $data = array() ) {
+
+        $post_cache_name              = 'works_query';
 
         if(isset($data['term_id'])) {
             $atts['tax_query']      =   array(
@@ -327,14 +336,15 @@ class Wjf_Portfolio_Public {
                                         )
                                     );
 
-        }
+            $post_cache_name        = 'works_query_tax' . $data['term_id'];
 
+        }
         $defaults['order']          = 'date';
         $defaults['quantity']       = 10;
         $defaults['tax_query']      = [];
         $args                       = shortcode_atts( $defaults, $atts, 'wjf-portfolio' );
 
-        $works->posts               = $this->get_works($args)->posts;
+        $works->posts               = $this->get_works($args, $post_cache_name)->posts;
 
         $works->taxonomies          = get_terms( 'work_type' );
 

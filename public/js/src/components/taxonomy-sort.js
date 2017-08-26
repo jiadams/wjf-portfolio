@@ -11,9 +11,9 @@ export default class TaxonomySort extends React.Component {
 
     render() {
         let termTitle       = this.props.termTitle,
-            termActive      = this.props.active,
+            activeTerm      = this.props.activeTerm,
             termId          = this.props.termId;
-        return(<li className="taxonomy-list-item"><a href={`#${ termId }`} onClick={this.props.taxonomyClickHandler} className={ ( termActive  ? ' active' : '' )} rel="nofollow">{ termTitle }</a></li>);
+        return(<li className="taxonomy-list-item"><a href={`#${ termId }`} onClick={this.props.taxonomyClickHandler} className={ ( (activeTerm == termId)  ? ' active' : '' )} rel="nofollow">{ termTitle }</a></li>);
     }
 
 }
@@ -21,6 +21,6 @@ export default class TaxonomySort extends React.Component {
 TaxonomySort.propTypes = {
     termId:                 PropTypes.number,
     termTitle:              PropTypes.string,
-    active:                 PropTypes.bool,
+    activeTerm:                 PropTypes.number,
     taxonomyClickHandler:   PropTypes.func,
 }

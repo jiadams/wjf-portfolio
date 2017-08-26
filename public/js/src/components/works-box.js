@@ -21,7 +21,6 @@ export default class WorksBox extends React.Component {
                                 term_id: -1,
                                 name: 'All',
                                 slug: 'all',
-                                active: true,
                             }],
                             currentView: {
                                 id: null,
@@ -65,7 +64,7 @@ export default class WorksBox extends React.Component {
         if (activeTaxonomy !== this.state.activeTaxonomy) {
             this.setState( { activeTaxonomy });
             if (activeTaxonomy === -1) {
-                this._fetchWorks()
+                this._fetchAllWorks()
             } else {
                 this._fetchTaxonomy( activeTaxonomy );
             }
@@ -101,7 +100,7 @@ export default class WorksBox extends React.Component {
     }
 
     componentWillMount() {
-        this._fetchWorks();
+        this._initialFetch();
     }
 
     render() {
@@ -155,18 +154,28 @@ export default class WorksBox extends React.Component {
                             termId                  = { taxonomy.term_id }
                             key                     = { taxonomy.term_id }
                             termTitle               = { taxonomy.name } 
-                            active                  = { taxonomy.active } 
+                            activeTerm              = { this.state.activeTaxonomy } 
                             taxonomyClickHandler    = { this.taxonomyClickHandler.bind(this, taxonomy.term_id) }/>);
         })
     }
 
-    _fetchWorks() {
-        jQuery.ajax({
+    _initialFetch() {
+         jQuery.ajax({
             method: 'GET',
             url: '/wp-json/wjf-portfolio/v1/works/',
             success: ( works ) => {
                 this._setWorks( works.posts );
                 this._setTaxonomies( works.taxonomies );
+            }
+        });       
+    }
+
+    _fetchAllWorks() {
+        jQuery.ajax({
+            method: 'GET',
+            url: '/wp-json/wjf-portfolio/v1/works/',
+            success: ( works ) => {
+                this._setWorks( works.posts );
             }
         });
     }
@@ -189,9 +198,6 @@ export default class WorksBox extends React.Component {
     }
 
     _setTaxonomies ( taxonomies ) {
-        taxonomies.map(( taxonomy ) => {
-            taxonomy.active     = false 
-        });
         this.setState( { taxonomies: this.state.taxonomies.concat( taxonomies ) } )
     }
 
