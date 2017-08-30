@@ -6,6 +6,8 @@ import WorkView from './work-view'; // eslint-disable-line no-unused-vars
 
 import TaxonomySort from './taxonomy-sort'; // eslint-disable-line no-unused-vars
 
+import WorkPagination from './work-pagination' // eslint-disable-line no-unused-vars
+
 
 'use strict';
 
@@ -31,8 +33,17 @@ export default class WorksBox extends React.Component {
                                 show: false,
 
                             },
+                            worksCount: null,
+                            postsPerPage: 10,
+                            currentPage: 1,
                             activeTaxonomy: -1,
                         };
+    }
+
+    handlePageClick(pageNumber, e) {
+        e.preventDefault();
+        this._setPage(pageNumber);
+        return;
     }
 
     handleWorkClick (workId, e) {
@@ -41,7 +52,7 @@ export default class WorksBox extends React.Component {
         return;
     }
 
-    workNavClickHandler (action, e ) {
+    handleWorkNavClick (action, e ) {
         e.preventDefault();
         switch(action) {
             case 'previous':
@@ -64,7 +75,7 @@ export default class WorksBox extends React.Component {
         if (activeTaxonomy !== this.state.activeTaxonomy) {
             this.setState( { activeTaxonomy });
             if (activeTaxonomy === -1) {
-                this._fetchAllWorks()
+                this._fetchWorks()
             } else {
                 this._fetchTaxonomy( activeTaxonomy );
             }
@@ -99,7 +110,7 @@ export default class WorksBox extends React.Component {
 
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this._initialFetch();
     }
 
@@ -121,15 +132,22 @@ export default class WorksBox extends React.Component {
                                 currentContent              = { this.state.currentView.content }
                                 currentImage                = { this.state.currentView.image}
                                 viewShow                    = { this.state.currentView.show } 
-                                nextWorkClickHandler        = { this.workNavClickHandler.bind(this, 'next') }
-                                previousWorkClickHandler    = { this.workNavClickHandler.bind(this, 'previous') }
-                                closeWorkClickHandler       = { this.workNavClickHandler.bind(this, 'close') } />
+                                nextWorkClickHandler        = { this.handleWorkNavClick.bind(this, 'next') }
+                                previousWorkClickHandler    = { this.handleWorkNavClick.bind(this, 'previous') }
+                                closeWorkClickHandler       = { this.handleWorkNavClick.bind(this, 'close') } />
                         </div>
                         <div className="row">
                             <div className="grid">
                                 { works }
                             </div>
-     d                    </div>
+                        </div>
+                        <div className="row">
+                            <WorkPagination 
+                                worksCount                  = { this.state.worksCount }
+                                postsPerPage                = { this.state.postsPerPage }
+                                currentPage                 = { this.state.currentPage } 
+                                handlePageClick             = { this.handlePageClick.bind(this) } />
+                        </div>
                     </div> ) ;
 
     }
@@ -166,61 +184,93 @@ export default class WorksBox extends React.Component {
             success: ( works ) => {
                 this._setWorks( works.posts );
                 this._setTaxonomies( works.taxonomies );
+                this._setWorksCount ( works.post_count );
             }
         });       
     }
 
-    _fetchAllWorks() {
+    _fetchWorks() {
         jQuery.ajax({
             method: 'GET',
             url: '/wp-json/wjf-portfolio/v1/works/',
             success: ( works ) => {
                 this._setWorks( works.posts );
+                this._setWorksCount ( works.post_count );
             }
         });
     }
 
-    _fetchTaxonomy(termId) {
-        termId = JSON.stringify(termId);
+    _fetchWorksPage( page ) {
         jQuery.ajax({
             method: 'GET',
-            url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
+            url: '/wp-json/wjf-portfolio/v1/works/page/' + page,
             success: ( works ) => {
                 this._setWorks( works.posts );
             }
         });
     }
 
-    _toggleView() {
-        let currentView = Object.assign({}, this.state.currentView);
-        currentView.show        = !currentView.show;
-        this.setState( { currentView } );
+
+    _fetchTaxonomy(termId) {
+        jQuery.ajax({
+            method: 'GET',
+            url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
+            success: ( works ) => {
+                this._setWorks( works.posts );
+                this._setTaxonomiesWorkCount( this.state.taxonomies, termId );
+            }
+        });
+    }
+
+    _fetchTaxonomyPage( termId, pageNumber ) {
+        jQuery.ajax({
+            method: 'GET',
+            url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId + '/page/' + pageNumber,
+            success: ( works ) => {
+                this._setWorks( works.posts );
+                this._setTaxonomiesWorkCount( this.state.taxonomies, termId );
+            }
+        });
+    }
+
+    /*_setCacheState( cacheName, toBeCachedData ) {
+
+    }*/
+
+    _setPage(pageNumber) {
+        let activeTaxonomy  = this.state.activeTaxonomy;
+        if ( activeTaxonomy === -1 ) {
+            this._fetchWorksPage(pageNumber);
+        } else {
+            this._fetchTaxonomyPage(activeTaxonomy, pageNumber);
+        }
+        this.setState( { currentPage: pageNumber } );
     }
 
     _setTaxonomies ( taxonomies ) {
         this.setState( { taxonomies: this.state.taxonomies.concat( taxonomies ) } )
     }
 
+    _setTaxonomiesWorkCount(taxonomies, termId) {
+        for( let i = 1; i < taxonomies.length; i++ ){
+            if( taxonomies[i].term_id == termId ) {
+                return this._setWorksCount( taxonomies[i].count );
+            }
+        } 
+    }
+
     _setWorks( works ) {
         this.setState( { works } );
     }
 
-    _setActiveWorks( works ) {
-        if (this.state.activeTaxonomy.includes(-1)) {
-            return this.setState( { activeWorks: works} );
-        }
-        let activeWorks = [];
-        this.state.activeTaxonomy.map(( termId ) => {
-            works.map((work, workIndex) => {
-                work.taxonomies.map(( taxonomy ) => {
-                    if ( taxonomy.term_id == termId) {
-                        activeWorks = activeWorks.concat( work );
-                        works.splice(workIndex, 0);
-                    }
-                });
-            });
-        });
-        this.setState( { activeWorks } );
+    _setWorksCount( worksCount ) {
+        this.setState( { worksCount } );
+    }
+
+    _toggleView() {
+        let currentView = Object.assign({}, this.state.currentView);
+        currentView.show = !currentView.show;
+        this.setState( { currentView } );
     }
 
 }

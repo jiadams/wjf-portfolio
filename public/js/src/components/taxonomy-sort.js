@@ -21,6 +21,6 @@ export default class TaxonomySort extends React.Component {
 TaxonomySort.propTypes = {
     termId:                 PropTypes.number,
     termTitle:              PropTypes.string,
-    activeTerm:                 PropTypes.number,
+    activeTerm:             PropTypes.number,
     taxonomyClickHandler:   PropTypes.func,
 }

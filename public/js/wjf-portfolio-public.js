@@ -21340,6 +21340,155 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var WorkPagination = function (_React$Component) {
+    _inherits(WorkPagination, _React$Component);
+
+    function WorkPagination(props) {
+        _classCallCheck(this, WorkPagination);
+
+        var _this = _possibleConstructorReturn(this, (WorkPagination.__proto__ || Object.getPrototypeOf(WorkPagination)).call(this, props));
+
+        _this.state = {
+            numberOfPages: 0
+        };
+        return _this;
+    }
+
+    _createClass(WorkPagination, [{
+        key: 'render',
+        value: function render() {
+            var pagesNumbers = this._getPageNumbers(),
+                currentPage = this.props.currentPage,
+                numberOfPages = this.state.numberOfPages,
+                previousLink = this._getPageNavLinks('Previous', -1),
+                nextLink = this._getPageNavLinks('Next', 1);
+            if (this.state.numberOfPages > 1) {
+                return _react2.default.createElement(
+                    'div',
+                    { className: 'pagination-container' },
+                    _react2.default.createElement(
+                        'ul',
+                        { className: 'pagination-list' },
+                        currentPage != 1 ? previousLink : '',
+                        pagesNumbers,
+                        currentPage != numberOfPages ? nextLink : ''
+                    )
+                );
+            } else {
+                return null;
+            }
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            if (nextProps.worksCount !== this.props.worksCount) {
+                this._setNumberOfPages(nextProps.worksCount);
+            }
+        }
+    }, {
+        key: '_getPageNavLinks',
+        value: function _getPageNavLinks(pageLinkText, iterator) {
+            var _this2 = this;
+
+            var currentPage = this.props.currentPage;
+            var goToPage = currentPage + iterator;
+            return _react2.default.createElement(
+                'li',
+                { className: 'pagination-list-item' },
+                _react2.default.createElement(
+                    'a',
+                    { href: '#' + pageLinkText, rel: 'nofollow', onClick: function onClick(e) {
+                            return _this2.props.handlePageClick(goToPage, e);
+                        } },
+                    pageLinkText
+                )
+            );
+        }
+    }, {
+        key: '_getPageNumbers',
+        value: function _getPageNumbers() {
+            var _this3 = this;
+
+            var pageNumbers = [];
+
+            for (var i = 0; i < this.state.numberOfPages; i++) {
+                pageNumbers.push(i + 1);
+            }
+
+            return pageNumbers.map(function (pageNumber) {
+                if (pageNumber === _this3.props.currentPage) {
+                    return _react2.default.createElement(
+                        'li',
+                        { key: pageNumber, className: 'pagination-list-item' },
+                        pageNumber
+                    );
+                } else {
+                    return _react2.default.createElement(
+                        'li',
+                        { key: pageNumber, className: 'pagination-list-item' },
+                        _react2.default.createElement(
+                            'a',
+                            { href: '#' + pageNumber, onClick: function onClick(e) {
+                                    return _this3.props.handlePageClick(pageNumber, e);
+                                }, rel: 'nofollow' },
+                            pageNumber
+                        )
+                    );
+                }
+            });
+        }
+    }, {
+        key: '_setNumberOfPages',
+        value: function _setNumberOfPages(worksCount) {
+            var postsPerPage = this.props.postsPerPage;
+            if (worksCount > postsPerPage) {
+                var numberOfPages = Math.ceil(worksCount / postsPerPage);
+
+                return this.setState({ numberOfPages: numberOfPages });
+            } else {
+                return this.setState({ numberOfPages: 1 });
+            }
+        }
+    }]);
+
+    return WorkPagination;
+}(_react2.default.Component);
+
+exports.default = WorkPagination;
+
+
+WorkPagination.propTypes = {
+    worksCount: _propTypes2.default.number,
+    postsPerPage: _propTypes2.default.number,
+    currentPage: _propTypes2.default.number,
+    handlePageClick: _propTypes2.default.func
+};
+
+},{"prop-types":31,"react":185}],188:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _worksViewNav = require('./works-view-nav');
 
 var _worksViewNav2 = _interopRequireDefault(_worksViewNav);
@@ -21416,7 +21565,7 @@ ViewWork.propTypes = {
     closeWorkClickHandler: _propTypes2.default.func
 };
 
-},{"./works-view-nav":190,"prop-types":31,"react":185}],188:[function(require,module,exports){
+},{"./works-view-nav":191,"prop-types":31,"react":185}],189:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21496,7 +21645,7 @@ Works.propTypes = {
     handleWorkClick: _propTypes2.default.func
 };
 
-},{"prop-types":31,"react":185}],189:[function(require,module,exports){
+},{"prop-types":31,"react":185}],190:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21521,6 +21670,10 @@ var _taxonomySort = require('./taxonomy-sort');
 
 var _taxonomySort2 = _interopRequireDefault(_taxonomySort);
 
+var _workPagination = require('./work-pagination');
+
+var _workPagination2 = _interopRequireDefault(_workPagination);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21528,6 +21681,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // eslint-disable-line no-unused-vars
+
+// eslint-disable-line no-unused-vars
 
 // eslint-disable-line no-unused-vars
 
@@ -21561,12 +21716,22 @@ var WorksBox = function (_React$Component) {
                 show: false
 
             },
+            worksCount: null,
+            postsPerPage: 10,
+            currentPage: 1,
             activeTaxonomy: -1
         };
         return _this;
     }
 
     _createClass(WorksBox, [{
+        key: 'handlePageClick',
+        value: function handlePageClick(pageNumber, e) {
+            e.preventDefault();
+            this._setPage(pageNumber);
+            return;
+        }
+    }, {
         key: 'handleWorkClick',
         value: function handleWorkClick(workId, e) {
             e.preventDefault();
@@ -21574,8 +21739,8 @@ var WorksBox = function (_React$Component) {
             return;
         }
     }, {
-        key: 'workNavClickHandler',
-        value: function workNavClickHandler(action, e) {
+        key: 'handleWorkNavClick',
+        value: function handleWorkNavClick(action, e) {
             e.preventDefault();
             switch (action) {
                 case 'previous':
@@ -21599,7 +21764,7 @@ var WorksBox = function (_React$Component) {
             if (activeTaxonomy !== this.state.activeTaxonomy) {
                 this.setState({ activeTaxonomy: activeTaxonomy });
                 if (activeTaxonomy === -1) {
-                    this._fetchAllWorks();
+                    this._fetchWorks();
                 } else {
                     this._fetchTaxonomy(activeTaxonomy);
                 }
@@ -21633,8 +21798,8 @@ var WorksBox = function (_React$Component) {
             }
         }
     }, {
-        key: 'componentWillMount',
-        value: function componentWillMount() {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
             this._initialFetch();
         }
     }, {
@@ -21665,9 +21830,9 @@ var WorksBox = function (_React$Component) {
                         currentContent: this.state.currentView.content,
                         currentImage: this.state.currentView.image,
                         viewShow: this.state.currentView.show,
-                        nextWorkClickHandler: this.workNavClickHandler.bind(this, 'next'),
-                        previousWorkClickHandler: this.workNavClickHandler.bind(this, 'previous'),
-                        closeWorkClickHandler: this.workNavClickHandler.bind(this, 'close') })
+                        nextWorkClickHandler: this.handleWorkNavClick.bind(this, 'next'),
+                        previousWorkClickHandler: this.handleWorkNavClick.bind(this, 'previous'),
+                        closeWorkClickHandler: this.handleWorkNavClick.bind(this, 'close') })
                 ),
                 _react2.default.createElement(
                     'div',
@@ -21676,8 +21841,16 @@ var WorksBox = function (_React$Component) {
                         'div',
                         { className: 'grid' },
                         works
-                    ),
-                    'd                    '
+                    )
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
+                    _react2.default.createElement(_workPagination2.default, {
+                        worksCount: this.state.worksCount,
+                        postsPerPage: this.state.postsPerPage,
+                        currentPage: this.state.currentPage,
+                        handlePageClick: this.handlePageClick.bind(this) })
                 )
             );
         }
@@ -21723,12 +21896,13 @@ var WorksBox = function (_React$Component) {
                 success: function success(works) {
                     _this4._setWorks(works.posts);
                     _this4._setTaxonomies(works.taxonomies);
+                    _this4._setWorksCount(works.post_count);
                 }
             });
         }
     }, {
-        key: '_fetchAllWorks',
-        value: function _fetchAllWorks() {
+        key: '_fetchWorks',
+        value: function _fetchWorks() {
             var _this5 = this;
 
             jQuery.ajax({
@@ -21736,22 +21910,89 @@ var WorksBox = function (_React$Component) {
                 url: '/wp-json/wjf-portfolio/v1/works/',
                 success: function success(works) {
                     _this5._setWorks(works.posts);
+                    _this5._setWorksCount(works.post_count);
+                }
+            });
+        }
+    }, {
+        key: '_fetchWorksPage',
+        value: function _fetchWorksPage(page) {
+            var _this6 = this;
+
+            jQuery.ajax({
+                method: 'GET',
+                url: '/wp-json/wjf-portfolio/v1/works/page/' + page,
+                success: function success(works) {
+                    _this6._setWorks(works.posts);
                 }
             });
         }
     }, {
         key: '_fetchTaxonomy',
         value: function _fetchTaxonomy(termId) {
-            var _this6 = this;
+            var _this7 = this;
 
-            termId = JSON.stringify(termId);
             jQuery.ajax({
                 method: 'GET',
                 url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
                 success: function success(works) {
-                    _this6._setWorks(works.posts);
+                    _this7._setWorks(works.posts);
+                    _this7._setTaxonomiesWorkCount(_this7.state.taxonomies, termId);
                 }
             });
+        }
+    }, {
+        key: '_fetchTaxonomyPage',
+        value: function _fetchTaxonomyPage(termId, pageNumber) {
+            var _this8 = this;
+
+            jQuery.ajax({
+                method: 'GET',
+                url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId + '/page/' + pageNumber,
+                success: function success(works) {
+                    _this8._setWorks(works.posts);
+                    _this8._setTaxonomiesWorkCount(_this8.state.taxonomies, termId);
+                }
+            });
+        }
+
+        /*_setCacheState( cacheName, toBeCachedData ) {
+         }*/
+
+    }, {
+        key: '_setPage',
+        value: function _setPage(pageNumber) {
+            var activeTaxonomy = this.state.activeTaxonomy;
+            if (activeTaxonomy === -1) {
+                this._fetchWorksPage(pageNumber);
+            } else {
+                this._fetchTaxonomyPage(activeTaxonomy, pageNumber);
+            }
+            this.setState({ currentPage: pageNumber });
+        }
+    }, {
+        key: '_setTaxonomies',
+        value: function _setTaxonomies(taxonomies) {
+            this.setState({ taxonomies: this.state.taxonomies.concat(taxonomies) });
+        }
+    }, {
+        key: '_setTaxonomiesWorkCount',
+        value: function _setTaxonomiesWorkCount(taxonomies, termId) {
+            for (var i = 1; i < taxonomies.length; i++) {
+                if (taxonomies[i].term_id == termId) {
+                    return this._setWorksCount(taxonomies[i].count);
+                }
+            }
+        }
+    }, {
+        key: '_setWorks',
+        value: function _setWorks(works) {
+            this.setState({ works: works });
+        }
+    }, {
+        key: '_setWorksCount',
+        value: function _setWorksCount(worksCount) {
+            this.setState({ worksCount: worksCount });
         }
     }, {
         key: '_toggleView',
@@ -21760,35 +22001,6 @@ var WorksBox = function (_React$Component) {
             currentView.show = !currentView.show;
             this.setState({ currentView: currentView });
         }
-    }, {
-        key: '_setTaxonomies',
-        value: function _setTaxonomies(taxonomies) {
-            this.setState({ taxonomies: this.state.taxonomies.concat(taxonomies) });
-        }
-    }, {
-        key: '_setWorks',
-        value: function _setWorks(works) {
-            this.setState({ works: works });
-        }
-    }, {
-        key: '_setActiveWorks',
-        value: function _setActiveWorks(works) {
-            if (this.state.activeTaxonomy.includes(-1)) {
-                return this.setState({ activeWorks: works });
-            }
-            var activeWorks = [];
-            this.state.activeTaxonomy.map(function (termId) {
-                works.map(function (work, workIndex) {
-                    work.taxonomies.map(function (taxonomy) {
-                        if (taxonomy.term_id == termId) {
-                            activeWorks = activeWorks.concat(work);
-                            works.splice(workIndex, 0);
-                        }
-                    });
-                });
-            });
-            this.setState({ activeWorks: activeWorks });
-        }
     }]);
 
     return WorksBox;
@@ -21796,7 +22008,7 @@ var WorksBox = function (_React$Component) {
 
 exports.default = WorksBox;
 
-},{"./taxonomy-sort":186,"./work":188,"./work-view":187,"react":185}],190:[function(require,module,exports){
+},{"./taxonomy-sort":186,"./work":189,"./work-pagination":187,"./work-view":188,"react":185}],191:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21871,7 +22083,7 @@ WorksViewNav.propTypes = {
     closeWorkClickHandler: _propTypes2.default.func.isRequired
 };
 
-},{"prop-types":31,"react":185}],191:[function(require,module,exports){
+},{"prop-types":31,"react":185}],192:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -21930,4 +22142,4 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     _reactDom2.default.render(_react2.default.createElement(_worksBox2.default, null), document.getElementById('works-box'));
 })(jQuery);
 
-},{"./components/works-box":189,"react":185,"react-dom":33}]},{},[191]);
+},{"./components/works-box":190,"react":185,"react-dom":33}]},{},[192]);

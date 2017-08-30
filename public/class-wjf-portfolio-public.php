@@ -153,47 +153,7 @@ class Wjf_Portfolio_Public {
 
         return $return;
 
-    } // get_openings()
-
-    /**
-     * Gets particular Post from cache or query
-     * 
-     * @param   int         $id             Post ID
-     *
-     * @return object post Object
-     */
-    public function get_work_by_id ( $work_id, $cache = '' ) {
-
-        $return     = '';
-        $cache_name = $this->plugin_name . '_works_posts';
-
-        if ( ! empty( $cache ) ) {
-
-            $cache_name .= '_' . $cache;
-
-        }
-
-        $return = wp_cache_get( $cache_name, $this->plugin_name . '_works_posts' );
-
-        if ( false === $return ) {
-
-            $defaults['loop-template']  = plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-loop.php';
-            $defaults['order']          = 'date';
-            $defaults['quantity']       = 10;
-            $args                       = shortcode_atts( $defaults, $atts, 'wjf-portfolio' );
-            $return                      = $this->get_works( $args );
-
-        }
-        
-        foreach ($return->posts as $post ) {
-            if ( $post->ID == $work_id ) {
-                return $post;
-            }
-        }
-
-        return 'No Works Found';
-
-    }//get_work_by_id
+    } // get_works()
 
     /**
      * Sets the args array for a WP_Query call
@@ -309,6 +269,18 @@ class Wjf_Portfolio_Public {
             'callback'              => array($this, 'get_works_api'),
         ));
 
+        register_rest_route('wjf-portfolio/v1', '/works/page/(?P<paged>[0-9]+)', array (
+            'method'                => 'GET',
+            'callback'              => array($this, 'get_works_api'),
+            'args'                  => array(
+                                        'paged' => array(
+                                            'validate_callback' => function($param, $request, $key) {
+                                                    return is_numeric( $param );
+                                                }
+                                            ),
+                                        ),
+        ));
+
         register_rest_route('wjf-portfolio/v1', '/works/tax/(?P<term_id>[0-9]+)', array (
             'method'                => 'GET',
             'callback'              => array($this, 'get_works_api'),
@@ -321,11 +293,28 @@ class Wjf_Portfolio_Public {
                                         ),
         ));
 
+        register_rest_route('wjf-portfolio/v1', '/works/tax/(?P<term_id>[0-9]+)/page/(?P<paged>[0-9]+)', array (
+            'method'                => 'GET',
+            'callback'              => array($this, 'get_works_api'),
+            'args'                  => array(
+                                        'term_id' => array(
+                                            'validate_callback' => function($param, $request, $key) {
+                                                    return is_numeric( $param );
+                                                }
+                                            ),
+                                        'paged' => array(
+                                            'validate_callback' => function($param, $request, $key) {
+                                                    return is_numeric( $param );
+                                                }
+                                            ),
+                                        ),
+        ));
+
     }//add_api()
 
     public function get_works_api( $data = array() ) {
 
-        $post_cache_name              = 'works_query';
+        $post_cache_name              = 'works_api_query';
 
         if(isset($data['term_id'])) {
             $atts['tax_query']      =   array(
@@ -339,12 +328,24 @@ class Wjf_Portfolio_Public {
             $post_cache_name        = 'works_query_tax' . $data['term_id'];
 
         }
+
+        if(isset($data['paged'])) {
+            $atts['paged']          = $data['paged'];
+
+            $post_cache_name        = $post_cache_name . '_page_' . $data['paged'];
+
+        }
+
         $defaults['order']          = 'date';
         $defaults['quantity']       = 10;
         $defaults['tax_query']      = [];
+        $defaults['paged']          = 1;
+
         $args                       = shortcode_atts( $defaults, $atts, 'wjf-portfolio' );
 
         $works->posts               = $this->get_works($args, $post_cache_name)->posts;
+
+        $works->post_count          = intval( wp_count_posts('work')->publish );
 
         $works->taxonomies          = get_terms( 'work_type' );
 
