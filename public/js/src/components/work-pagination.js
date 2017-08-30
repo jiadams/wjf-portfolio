@@ -27,13 +27,13 @@ export default class WorkPagination extends React.Component {
                         </ul>
                     </div>);
         } else {
-            return (null);
+            return (<div className="pagination-container"></div>);
         }
     }
 
     componentWillReceiveProps(nextProps) {
-        if( nextProps.worksCount !== this.props.worksCount) {
-            this._setNumberOfPages( nextProps.worksCount );
+        if( nextProps.worksCount !== this.props.worksCount || nextProps.worksPerPage !== this.props.worksPerPage) {
+            this._setNumberOfPages( nextProps.worksCount, nextProps.worksPerPage );
         }
     }
 
@@ -66,10 +66,9 @@ export default class WorkPagination extends React.Component {
         });
     }
 
-    _setNumberOfPages( worksCount ) {
-        let postsPerPage        = this.props.postsPerPage;
-        if( worksCount > postsPerPage ) {
-            let numberOfPages   = Math.ceil(worksCount / postsPerPage );
+    _setNumberOfPages( worksCount, worksPerPage ) {
+        if( worksCount > worksPerPage ) {
+            let numberOfPages   = Math.ceil(worksCount / worksPerPage );
             
             return this.setState( { numberOfPages } );
         } else {
@@ -81,7 +80,7 @@ export default class WorkPagination extends React.Component {
 
 WorkPagination.propTypes = {
     worksCount:         PropTypes.number,
-    postsPerPage:       PropTypes.number, 
+    worksPerPage:       PropTypes.number, 
     currentPage:        PropTypes.number,
     handlePageClick:    PropTypes.func,
 }

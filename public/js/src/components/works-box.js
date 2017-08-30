@@ -34,7 +34,7 @@ export default class WorksBox extends React.Component {
 
                             },
                             worksCount: null,
-                            postsPerPage: 10,
+                            worksPerPage: 10,
                             currentPage: 1,
                             activeTaxonomy: -1,
                         };
@@ -77,7 +77,7 @@ export default class WorksBox extends React.Component {
             if (activeTaxonomy === -1) {
                 this._fetchWorks()
             } else {
-                this._fetchTaxonomy( activeTaxonomy );
+                this._fetchWorksTaxonomy( activeTaxonomy );
             }
         }
     }
@@ -108,6 +108,10 @@ export default class WorksBox extends React.Component {
             }
         }
 
+    }
+
+    componentWillMount() {
+        this._clearAppCache();
     }
 
     componentDidMount() {
@@ -144,7 +148,7 @@ export default class WorksBox extends React.Component {
                         <div className="row">
                             <WorkPagination 
                                 worksCount                  = { this.state.worksCount }
-                                postsPerPage                = { this.state.postsPerPage }
+                                worksPerPage                = { this.state.worksPerPage }
                                 currentPage                 = { this.state.currentPage } 
                                 handlePageClick             = { this.handlePageClick.bind(this) } />
                         </div>
@@ -152,7 +156,22 @@ export default class WorksBox extends React.Component {
 
     }
 
-    /*Getters and Setters*/
+    /*Getters, Setters, and Fetch Functions*/
+
+    _getCache(cacheName) {
+        let expirationtimestamp = new Date().getTime() + (1 * 60000),
+            cachedData          = JSON.parse(localStorage.getItem('wjf_portfolio'));
+        if(cachedData !== null && cachedData[cacheName] !== undefined) {
+            if( cachedData[cacheName].timestamp < expirationtimestamp ) {
+                return cachedData[cacheName];
+            } else {
+                delete cachedData[cacheName];
+                localStorage.setItem( 'wjf_portfolio', JSON.stringify( cachedData ) );
+            }
+        }
+
+        return null;
+    }
 
     _getWorks() {
         return this.state.works.map(( work ) => {
@@ -178,73 +197,127 @@ export default class WorksBox extends React.Component {
     }
 
     _initialFetch() {
-         jQuery.ajax({
+        let cacheName = "works_page_1";
+        jQuery.ajax({
             method: 'GET',
             url: '/wp-json/wjf-portfolio/v1/works/',
             success: ( works ) => {
                 this._setWorks( works.posts );
                 this._setTaxonomies( works.taxonomies );
                 this._setWorksCount ( works.post_count );
+                this._setWorksPerPage( works.posts.length );
+                this._setCacheState( cacheName, works );
             }
         });       
     }
 
     _fetchWorks() {
-        jQuery.ajax({
-            method: 'GET',
-            url: '/wp-json/wjf-portfolio/v1/works/',
-            success: ( works ) => {
+        let cacheName = "works_page_1",
+            works = this._getCache( cacheName );
+        if ( works !== null) {
                 this._setWorks( works.posts );
                 this._setWorksCount ( works.post_count );
-            }
-        });
+                this._setCurrentPage(1);
+        } else {
+            jQuery.ajax({
+                method: 'GET',
+                url: '/wp-json/wjf-portfolio/v1/works/',
+                success: ( works ) => {
+                    this._setWorks( works.posts );
+                    this._setWorksCount ( works.post_count );
+                    this._setCurrentPage(1);
+                    this._setCacheState( 'works_page_1', works );
+                }
+            });
+        }
     }
 
     _fetchWorksPage( page ) {
-        jQuery.ajax({
-            method: 'GET',
-            url: '/wp-json/wjf-portfolio/v1/works/page/' + page,
-            success: ( works ) => {
+        let cacheName = 'works_page_' + page,
+            works = this._getCache( cacheName );
+        if ( works !== null) {
                 this._setWorks( works.posts );
-            }
-        });
+                this._setWorksCount ( works.post_count );
+                this._setCurrentPage(1);
+        } else {
+            jQuery.ajax({
+                method: 'GET',
+                url: '/wp-json/wjf-portfolio/v1/works/page/' + page,
+                success: ( works ) => {
+                    this._setWorks( works.posts );
+                    this._setCacheState( cacheName, works );
+                }
+            });
+        }
     }
 
 
-    _fetchTaxonomy(termId) {
-        jQuery.ajax({
-            method: 'GET',
-            url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
-            success: ( works ) => {
+    _fetchWorksTaxonomy(termId) {
+        let cacheName = 'tax_' + termId + '_page_1',
+            works = this._getCache( cacheName );
+        if ( works !== null) {
                 this._setWorks( works.posts );
-                this._setTaxonomiesWorkCount( this.state.taxonomies, termId );
-            }
-        });
+                this._setWorksCount ( works.post_count );
+                this._setCurrentPage(1);
+        } else {
+            jQuery.ajax({
+                method: 'GET',
+                url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
+                success: ( works ) => {
+                    this._setWorks( works.posts );
+                    this._setTaxonomiesWorkCount( this.state.taxonomies, termId );
+                    this._setCurrentPage(1);
+                    this._setCacheState( cacheName, works );
+                }
+            });
+        }
     }
 
-    _fetchTaxonomyPage( termId, pageNumber ) {
-        jQuery.ajax({
-            method: 'GET',
-            url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId + '/page/' + pageNumber,
-            success: ( works ) => {
+    _fetchWorksTaxonomyPage( termId, pageNumber ) {
+        let cacheName = 'tax_' + termId + '_page_' + pageNumber,
+            works = this._getCache( cacheName );
+        if ( works !== null) {
                 this._setWorks( works.posts );
-                this._setTaxonomiesWorkCount( this.state.taxonomies, termId );
-            }
-        });
+                this._setWorksCount ( works.post_count );
+                this._setCurrentPage(1);
+        } else {
+            jQuery.ajax({
+                method: 'GET',
+                url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId + '/page/' + pageNumber,
+                success: ( works ) => {
+                    this._setWorks( works.posts );
+                    this._setTaxonomiesWorkCount( this.state.taxonomies, termId );
+                    this._setCacheState( cacheName, works );
+                }
+            });
+        }        
     }
 
-    /*_setCacheState( cacheName, toBeCachedData ) {
+    _setCacheState( cacheName, data ) {
+        let appCache                    = localStorage.getItem("wjf_portfolio");
+        if (appCache !== null) {
+            appCache                    = JSON.parse(appCache);
+        } else {
+            appCache                    = {};
+        }
+        appCache[cacheName]             = data;
+        appCache[cacheName].timestamp   = new Date().getTime();
 
-    }*/
+        localStorage.setItem( 'wjf_portfolio', JSON.stringify( appCache ) );
+    }
+
+    _setCurrentPage( currentPage ) {
+        return this.setState( {currentPage} );
+    }
 
     _setPage(pageNumber) {
         let activeTaxonomy  = this.state.activeTaxonomy;
         if ( activeTaxonomy === -1 ) {
             this._fetchWorksPage(pageNumber);
         } else {
-            this._fetchTaxonomyPage(activeTaxonomy, pageNumber);
+            this._fetchWorksTaxonomyPage(activeTaxonomy, pageNumber);
         }
-        this.setState( { currentPage: pageNumber } );
+        this._setCurrentPage( pageNumber );
     }
 
     _setTaxonomies ( taxonomies ) {
@@ -267,10 +340,18 @@ export default class WorksBox extends React.Component {
         this.setState( { worksCount } );
     }
 
+    _setWorksPerPage( worksPerPage ) {
+        this.setState( { worksPerPage } );
+    }
+
     _toggleView() {
         let currentView = Object.assign({}, this.state.currentView);
         currentView.show = !currentView.show;
         this.setState( { currentView } );
+    }
+
+    _clearAppCache() {
+        localStorage.removeItem('wjf_portfolio');
     }
 
 }

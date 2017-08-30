@@ -106,7 +106,9 @@ class Wjf_Portfolio_Public {
          * class.
          */
         
-        wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wjf-portfolio-public.js', array( 'jquery' ), $this->version, true );
+         if ( $this->get_options()['display-page'] != '' && is_page($this->get_options()['display-page']) ) {
+            wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wjf-portfolio-public.js', array( 'jquery' ), $this->version, true );
+        }
 
     }
 
@@ -257,9 +259,7 @@ class Wjf_Portfolio_Public {
      *
      * @param   $data work post ID
      *
-     * @uses  wjf_portfolio_get_works_api()
-     *
-     * @return  [<description>]
+     * @uses  get_works_api()
      */
     
     public function add_api() {
@@ -311,6 +311,16 @@ class Wjf_Portfolio_Public {
         ));
 
     }//add_api()
+
+    /**
+     * Processes api calls parsing argument and returns wp_queries
+     *
+     * @param   $data wp_query arguments from api
+     *
+     * @uses  get_works_api()
+     *
+     * @return  wp_query for works based on input argument
+     */
 
     public function get_works_api( $data = array() ) {
 

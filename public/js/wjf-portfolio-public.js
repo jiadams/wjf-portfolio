@@ -21383,14 +21383,14 @@ var WorkPagination = function (_React$Component) {
                     )
                 );
             } else {
-                return null;
+                return _react2.default.createElement('div', { className: 'pagination-container' });
             }
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.worksCount !== this.props.worksCount) {
-                this._setNumberOfPages(nextProps.worksCount);
+            if (nextProps.worksCount !== this.props.worksCount || nextProps.worksPerPage !== this.props.worksPerPage) {
+                this._setNumberOfPages(nextProps.worksCount, nextProps.worksPerPage);
             }
         }
     }, {
@@ -21447,10 +21447,9 @@ var WorkPagination = function (_React$Component) {
         }
     }, {
         key: '_setNumberOfPages',
-        value: function _setNumberOfPages(worksCount) {
-            var postsPerPage = this.props.postsPerPage;
-            if (worksCount > postsPerPage) {
-                var numberOfPages = Math.ceil(worksCount / postsPerPage);
+        value: function _setNumberOfPages(worksCount, worksPerPage) {
+            if (worksCount > worksPerPage) {
+                var numberOfPages = Math.ceil(worksCount / worksPerPage);
 
                 return this.setState({ numberOfPages: numberOfPages });
             } else {
@@ -21467,7 +21466,7 @@ exports.default = WorkPagination;
 
 WorkPagination.propTypes = {
     worksCount: _propTypes2.default.number,
-    postsPerPage: _propTypes2.default.number,
+    worksPerPage: _propTypes2.default.number,
     currentPage: _propTypes2.default.number,
     handlePageClick: _propTypes2.default.func
 };
@@ -21717,7 +21716,7 @@ var WorksBox = function (_React$Component) {
 
             },
             worksCount: null,
-            postsPerPage: 10,
+            worksPerPage: 10,
             currentPage: 1,
             activeTaxonomy: -1
         };
@@ -21766,7 +21765,7 @@ var WorksBox = function (_React$Component) {
                 if (activeTaxonomy === -1) {
                     this._fetchWorks();
                 } else {
-                    this._fetchTaxonomy(activeTaxonomy);
+                    this._fetchWorksTaxonomy(activeTaxonomy);
                 }
             }
         }
@@ -21796,6 +21795,11 @@ var WorksBox = function (_React$Component) {
                     return;
                 }
             }
+        }
+    }, {
+        key: 'componentWillMount',
+        value: function componentWillMount() {
+            this._clearAppCache();
         }
     }, {
         key: 'componentDidMount',
@@ -21848,15 +21852,31 @@ var WorksBox = function (_React$Component) {
                     { className: 'row' },
                     _react2.default.createElement(_workPagination2.default, {
                         worksCount: this.state.worksCount,
-                        postsPerPage: this.state.postsPerPage,
+                        worksPerPage: this.state.worksPerPage,
                         currentPage: this.state.currentPage,
                         handlePageClick: this.handlePageClick.bind(this) })
                 )
             );
         }
 
-        /*Getters and Setters*/
+        /*Getters, Setters, and Fetch Functions*/
 
+    }, {
+        key: '_getCache',
+        value: function _getCache(cacheName) {
+            var expirationtimestamp = new Date().getTime() + 1 * 60000,
+                cachedData = JSON.parse(localStorage.getItem('wjf_portfolio'));
+            if (cachedData !== null && cachedData[cacheName] !== undefined) {
+                if (cachedData[cacheName].timestamp < expirationtimestamp) {
+                    return cachedData[cacheName];
+                } else {
+                    delete cachedData[cacheName];
+                    localStorage.setItem('wjf_portfolio', JSON.stringify(cachedData));
+                }
+            }
+
+            return null;
+        }
     }, {
         key: '_getWorks',
         value: function _getWorks() {
@@ -21890,6 +21910,7 @@ var WorksBox = function (_React$Component) {
         value: function _initialFetch() {
             var _this4 = this;
 
+            var cacheName = "works_page_1";
             jQuery.ajax({
                 method: 'GET',
                 url: '/wp-json/wjf-portfolio/v1/works/',
@@ -21897,6 +21918,8 @@ var WorksBox = function (_React$Component) {
                     _this4._setWorks(works.posts);
                     _this4._setTaxonomies(works.taxonomies);
                     _this4._setWorksCount(works.post_count);
+                    _this4._setWorksPerPage(works.posts.length);
+                    _this4._setCacheState(cacheName, works);
                 }
             });
         }
@@ -21905,60 +21928,113 @@ var WorksBox = function (_React$Component) {
         value: function _fetchWorks() {
             var _this5 = this;
 
-            jQuery.ajax({
-                method: 'GET',
-                url: '/wp-json/wjf-portfolio/v1/works/',
-                success: function success(works) {
-                    _this5._setWorks(works.posts);
-                    _this5._setWorksCount(works.post_count);
-                }
-            });
+            var cacheName = "works_page_1",
+                works = this._getCache(cacheName);
+            if (works !== null) {
+                this._setWorks(works.posts);
+                this._setWorksCount(works.post_count);
+                this._setCurrentPage(1);
+            } else {
+                jQuery.ajax({
+                    method: 'GET',
+                    url: '/wp-json/wjf-portfolio/v1/works/',
+                    success: function success(works) {
+                        _this5._setWorks(works.posts);
+                        _this5._setWorksCount(works.post_count);
+                        _this5._setCurrentPage(1);
+                        _this5._setCacheState('works_page_1', works);
+                    }
+                });
+            }
         }
     }, {
         key: '_fetchWorksPage',
         value: function _fetchWorksPage(page) {
             var _this6 = this;
 
-            jQuery.ajax({
-                method: 'GET',
-                url: '/wp-json/wjf-portfolio/v1/works/page/' + page,
-                success: function success(works) {
-                    _this6._setWorks(works.posts);
-                }
-            });
+            var cacheName = 'works_page_' + page,
+                works = this._getCache(cacheName);
+            if (works !== null) {
+                this._setWorks(works.posts);
+                this._setWorksCount(works.post_count);
+                this._setCurrentPage(1);
+            } else {
+                jQuery.ajax({
+                    method: 'GET',
+                    url: '/wp-json/wjf-portfolio/v1/works/page/' + page,
+                    success: function success(works) {
+                        _this6._setWorks(works.posts);
+                        _this6._setCacheState(cacheName, works);
+                    }
+                });
+            }
         }
     }, {
-        key: '_fetchTaxonomy',
-        value: function _fetchTaxonomy(termId) {
+        key: '_fetchWorksTaxonomy',
+        value: function _fetchWorksTaxonomy(termId) {
             var _this7 = this;
 
-            jQuery.ajax({
-                method: 'GET',
-                url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
-                success: function success(works) {
-                    _this7._setWorks(works.posts);
-                    _this7._setTaxonomiesWorkCount(_this7.state.taxonomies, termId);
-                }
-            });
+            var cacheName = 'tax_' + termId + '_page_1',
+                works = this._getCache(cacheName);
+            if (works !== null) {
+                this._setWorks(works.posts);
+                this._setWorksCount(works.post_count);
+                this._setCurrentPage(1);
+            } else {
+                jQuery.ajax({
+                    method: 'GET',
+                    url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
+                    success: function success(works) {
+                        _this7._setWorks(works.posts);
+                        _this7._setTaxonomiesWorkCount(_this7.state.taxonomies, termId);
+                        _this7._setCurrentPage(1);
+                        _this7._setCacheState(cacheName, works);
+                    }
+                });
+            }
         }
     }, {
-        key: '_fetchTaxonomyPage',
-        value: function _fetchTaxonomyPage(termId, pageNumber) {
+        key: '_fetchWorksTaxonomyPage',
+        value: function _fetchWorksTaxonomyPage(termId, pageNumber) {
             var _this8 = this;
 
-            jQuery.ajax({
-                method: 'GET',
-                url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId + '/page/' + pageNumber,
-                success: function success(works) {
-                    _this8._setWorks(works.posts);
-                    _this8._setTaxonomiesWorkCount(_this8.state.taxonomies, termId);
-                }
-            });
+            var cacheName = 'tax_' + termId + '_page_' + pageNumber,
+                works = this._getCache(cacheName);
+            if (works !== null) {
+                this._setWorks(works.posts);
+                this._setWorksCount(works.post_count);
+                this._setCurrentPage(1);
+            } else {
+                jQuery.ajax({
+                    method: 'GET',
+                    url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId + '/page/' + pageNumber,
+                    success: function success(works) {
+                        _this8._setWorks(works.posts);
+                        _this8._setTaxonomiesWorkCount(_this8.state.taxonomies, termId);
+                        _this8._setCacheState(cacheName, works);
+                    }
+                });
+            }
         }
+    }, {
+        key: '_setCacheState',
+        value: function _setCacheState(cacheName, data) {
+            var appCache = localStorage.getItem("wjf_portfolio");
+            if (appCache !== null) {
+                appCache = JSON.parse(appCache);
+            } else {
+                appCache = {};
+            }
+            appCache[cacheName] = data;
+            appCache[cacheName].timestamp = new Date().getTime();
 
-        /*_setCacheState( cacheName, toBeCachedData ) {
-         }*/
-
+            localStorage.setItem('wjf_portfolio', JSON.stringify(appCache));
+        }
+    }, {
+        key: '_setCurrentPage',
+        value: function _setCurrentPage(currentPage) {
+            return this.setState({ currentPage: currentPage });
+        }
     }, {
         key: '_setPage',
         value: function _setPage(pageNumber) {
@@ -21966,9 +22042,9 @@ var WorksBox = function (_React$Component) {
             if (activeTaxonomy === -1) {
                 this._fetchWorksPage(pageNumber);
             } else {
-                this._fetchTaxonomyPage(activeTaxonomy, pageNumber);
+                this._fetchWorksTaxonomyPage(activeTaxonomy, pageNumber);
             }
-            this.setState({ currentPage: pageNumber });
+            this._setCurrentPage(pageNumber);
         }
     }, {
         key: '_setTaxonomies',
@@ -21995,11 +22071,21 @@ var WorksBox = function (_React$Component) {
             this.setState({ worksCount: worksCount });
         }
     }, {
+        key: '_setWorksPerPage',
+        value: function _setWorksPerPage(worksPerPage) {
+            this.setState({ worksPerPage: worksPerPage });
+        }
+    }, {
         key: '_toggleView',
         value: function _toggleView() {
             var currentView = Object.assign({}, this.state.currentView);
             currentView.show = !currentView.show;
             this.setState({ currentView: currentView });
+        }
+    }, {
+        key: '_clearAppCache',
+        value: function _clearAppCache() {
+            localStorage.removeItem('wjf_portfolio');
         }
     }]);
 
