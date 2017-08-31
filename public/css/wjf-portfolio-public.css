@@ -215,21 +215,22 @@ ul.taxonomy-list>li.taxonomy-list-item a:hover, ul.taxonomy-list>li.taxonomy-lis
 }
 
 .works-view-container {
+    position: relative;
+    background-color: #f8f8f8;
     width: 100%;
-    -webkit-transition: all .2s ease-out; /* Safari */
-    transition: all .2s ease-out;
+    -webkit-transition: height .2s ease-out; /* Safari */
+    transition: height .2s ease-out;
+    margin-bottom: 30px;
+    overflow: hidden;
+    margin-bottom: 30px;
 }
 
 .works-view-container.inactive {
-    height: 0;
 }
 
 .works-view-container.active {
-    height: auto;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 17px 1px;
     border: 1px solid #e1e1e1;
-    background-color: #f8f8f8;
-    margin-bottom: 30px;
 }
 
 .works-view-nav-container {
@@ -239,7 +240,6 @@ ul.taxonomy-list>li.taxonomy-list-item a:hover, ul.taxonomy-list>li.taxonomy-lis
 }
 
 .work-view-content {
-    position: relative;
     padding: 63px 30px 30px 30px;;
 }
 
@@ -254,8 +254,8 @@ ul.taxonomy-list>li.taxonomy-list-item a:hover, ul.taxonomy-list>li.taxonomy-lis
     color: #838383;
 }
 
-.works-nav-buttons a .dashicons, .works-nav-buttons a .dashicons-before:before {
-    font-size: .9rem;
+.works-nav-buttons a {
+    font-size: 1.2rem;
     line-height: 40px;
     text-decoration: none;
 }

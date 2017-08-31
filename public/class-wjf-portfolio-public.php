@@ -84,6 +84,7 @@ class Wjf_Portfolio_Public {
          */
 
         wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wjf-portfolio-public.css', array(), $this->version, 'all' );
+        wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'); 
 
     }
 

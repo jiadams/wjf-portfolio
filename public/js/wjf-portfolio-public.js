@@ -21506,44 +21506,78 @@ var ViewWork = function (_React$Component) {
     function ViewWork(props) {
         _classCallCheck(this, ViewWork);
 
-        return _possibleConstructorReturn(this, (ViewWork.__proto__ || Object.getPrototypeOf(ViewWork)).call(this, props));
+        var _this = _possibleConstructorReturn(this, (ViewWork.__proto__ || Object.getPrototypeOf(ViewWork)).call(this, props));
+
+        _this.state = {
+            viewHight: 0
+        };
+        return _this;
     }
 
     _createClass(ViewWork, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            if (nextProps.viewShow) {
+                this.setState({ viewHight: this.viewContainer.scrollHeight });
+            } else {
+                this.setState({ viewHight: 0 });
+            }
+        }
+    }, {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate(prevProps) {
+            if (prevProps.viewShow !== this.props.viewShow) {
+                if (!this.props.viewShow) {
+                    this.setState({ viewHight: 0 });
+                } else {
+                    this.setState({ viewHight: this.viewContainer.scrollHeight });
+                }
+            }
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             var workContent = this.props.currentContent,
                 workFeatImage = this.props.currentImage,
-                workTitle = this.props.currentTitle;
-
-            if (this.props.viewShow) {
-                return _react2.default.createElement(
+                workTitle = this.props.currentTitle,
+                viewHight = this.state.viewHight;
+            return _react2.default.createElement(
+                'div',
+                { className: this.props.viewShow ? "works-view-container active" : "works-view-container", ref: function ref(ele) {
+                        _this2.viewContainer = ele;
+                    }, style: { height: viewHight } },
+                _react2.default.createElement(
                     'div',
-                    { className: 'works-view-container active' },
+                    { className: 'seven columns works-img-container' },
+                    _react2.default.createElement('img', { src: workFeatImage, alt: workTitle, title: workTitle })
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'five columns work-view-content no-gutter' },
+                    _react2.default.createElement(_worksViewNav2.default, {
+                        nextWorkClickHandler: this.props.nextWorkClickHandler,
+                        previousWorkClickHandler: this.props.previousWorkClickHandler,
+                        closeWorkClickHandler: this.props.closeWorkClickHandler }),
                     _react2.default.createElement(
-                        'div',
-                        { className: 'seven columns works-img-container' },
-                        _react2.default.createElement('img', { src: workFeatImage, alt: workTitle, title: workTitle })
+                        'h2',
+                        null,
+                        ' ',
+                        workTitle,
+                        ' '
                     ),
-                    _react2.default.createElement(
-                        'div',
-                        { className: 'five columns work-view-content no-gutter' },
-                        _react2.default.createElement(_worksViewNav2.default, {
-                            nextWorkClickHandler: this.props.nextWorkClickHandler,
-                            previousWorkClickHandler: this.props.previousWorkClickHandler,
-                            closeWorkClickHandler: this.props.closeWorkClickHandler }),
-                        _react2.default.createElement(
-                            'h2',
-                            null,
-                            ' ',
-                            workTitle,
-                            ' '
-                        ),
-                        _react2.default.createElement('div', { dangerouslySetInnerHTML: { __html: workContent } })
-                    )
-                );
+                    _react2.default.createElement('div', { dangerouslySetInnerHTML: { __html: workContent } })
+                )
+            );
+        }
+    }, {
+        key: 'getViewHeight',
+        value: function getViewHeight() {
+            if (this.props.viewShow) {
+                return this.viewContainer.scrollHeight;
             } else {
-                return _react2.default.createElement('div', { className: 'works-view-container inactive' });
+                return 0;
             }
         }
     }]);
@@ -21699,7 +21733,6 @@ var WorksBox = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (WorksBox.__proto__ || Object.getPrototypeOf(WorksBox)).call(this));
 
         _this.state = {
-            showWorks: false,
             works: [],
             taxonomies: [{
                 term_id: -1,
@@ -21724,6 +21757,15 @@ var WorksBox = function (_React$Component) {
     }
 
     _createClass(WorksBox, [{
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate(prevProps, prevState) {
+            if (prevState.currentView !== this.state.currentView && this.state.currentView) {
+                $('html, body').animate({
+                    scrollTop: this.worksContainer.offsetTop - 60
+                }, 250);
+            }
+        }
+    }, {
         key: 'handlePageClick',
         value: function handlePageClick(pageNumber, e) {
             e.preventDefault();
@@ -21809,11 +21851,15 @@ var WorksBox = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             var works = this._getWorks(),
                 taxonomies = this._getTaxonomies();
             return _react2.default.createElement(
                 'div',
-                { className: 'container works-container' },
+                { className: 'container works-container', ref: function ref(ele) {
+                        _this2.worksContainer = ele;
+                    } },
                 _react2.default.createElement(
                     'div',
                     { className: 'row' },
@@ -21836,7 +21882,8 @@ var WorksBox = function (_React$Component) {
                         viewShow: this.state.currentView.show,
                         nextWorkClickHandler: this.handleWorkNavClick.bind(this, 'next'),
                         previousWorkClickHandler: this.handleWorkNavClick.bind(this, 'previous'),
-                        closeWorkClickHandler: this.handleWorkNavClick.bind(this, 'close') })
+                        closeWorkClickHandler: this.handleWorkNavClick.bind(this, 'close')
+                    })
                 ),
                 _react2.default.createElement(
                     'div',
@@ -21880,53 +21927,53 @@ var WorksBox = function (_React$Component) {
     }, {
         key: '_getWorks',
         value: function _getWorks() {
-            var _this2 = this;
+            var _this3 = this;
 
             return this.state.works.map(function (work) {
                 return _react2.default.createElement(_work2.default, {
-                    id: work.ID,
                     key: work.ID,
+                    id: work.ID,
                     postTitle: work.post_title,
                     postImage: work.post_image,
-                    handleWorkClick: _this2.handleWorkClick.bind(_this2, work.ID) });
+                    handleWorkClick: _this3.handleWorkClick.bind(_this3, work.ID) });
             });
         }
     }, {
         key: '_getTaxonomies',
         value: function _getTaxonomies() {
-            var _this3 = this;
+            var _this4 = this;
 
             return this.state.taxonomies.map(function (taxonomy) {
                 return _react2.default.createElement(_taxonomySort2.default, {
-                    termId: taxonomy.term_id,
                     key: taxonomy.term_id,
+                    termId: taxonomy.term_id,
                     termTitle: taxonomy.name,
-                    activeTerm: _this3.state.activeTaxonomy,
-                    taxonomyClickHandler: _this3.taxonomyClickHandler.bind(_this3, taxonomy.term_id) });
+                    activeTerm: _this4.state.activeTaxonomy,
+                    taxonomyClickHandler: _this4.taxonomyClickHandler.bind(_this4, taxonomy.term_id) });
             });
         }
     }, {
         key: '_initialFetch',
         value: function _initialFetch() {
-            var _this4 = this;
+            var _this5 = this;
 
             var cacheName = "works_page_1";
             jQuery.ajax({
                 method: 'GET',
                 url: '/wp-json/wjf-portfolio/v1/works/',
                 success: function success(works) {
-                    _this4._setWorks(works.posts);
-                    _this4._setTaxonomies(works.taxonomies);
-                    _this4._setWorksCount(works.post_count);
-                    _this4._setWorksPerPage(works.posts.length);
-                    _this4._setCacheState(cacheName, works);
+                    _this5._setWorks(works.posts);
+                    _this5._setTaxonomies(works.taxonomies);
+                    _this5._setWorksCount(works.post_count);
+                    _this5._setWorksPerPage(works.posts.length);
+                    _this5._setCacheState(cacheName, works);
                 }
             });
         }
     }, {
         key: '_fetchWorks',
         value: function _fetchWorks() {
-            var _this5 = this;
+            var _this6 = this;
 
             var cacheName = "works_page_1",
                 works = this._getCache(cacheName);
@@ -21939,10 +21986,10 @@ var WorksBox = function (_React$Component) {
                     method: 'GET',
                     url: '/wp-json/wjf-portfolio/v1/works/',
                     success: function success(works) {
-                        _this5._setWorks(works.posts);
-                        _this5._setWorksCount(works.post_count);
-                        _this5._setCurrentPage(1);
-                        _this5._setCacheState('works_page_1', works);
+                        _this6._setWorks(works.posts);
+                        _this6._setWorksCount(works.post_count);
+                        _this6._setCurrentPage(1);
+                        _this6._setCacheState('works_page_1', works);
                     }
                 });
             }
@@ -21950,7 +21997,7 @@ var WorksBox = function (_React$Component) {
     }, {
         key: '_fetchWorksPage',
         value: function _fetchWorksPage(page) {
-            var _this6 = this;
+            var _this7 = this;
 
             var cacheName = 'works_page_' + page,
                 works = this._getCache(cacheName);
@@ -21963,8 +22010,8 @@ var WorksBox = function (_React$Component) {
                     method: 'GET',
                     url: '/wp-json/wjf-portfolio/v1/works/page/' + page,
                     success: function success(works) {
-                        _this6._setWorks(works.posts);
-                        _this6._setCacheState(cacheName, works);
+                        _this7._setWorks(works.posts);
+                        _this7._setCacheState(cacheName, works);
                     }
                 });
             }
@@ -21972,7 +22019,7 @@ var WorksBox = function (_React$Component) {
     }, {
         key: '_fetchWorksTaxonomy',
         value: function _fetchWorksTaxonomy(termId) {
-            var _this7 = this;
+            var _this8 = this;
 
             var cacheName = 'tax_' + termId + '_page_1',
                 works = this._getCache(cacheName);
@@ -21985,10 +22032,10 @@ var WorksBox = function (_React$Component) {
                     method: 'GET',
                     url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId,
                     success: function success(works) {
-                        _this7._setWorks(works.posts);
-                        _this7._setTaxonomiesWorkCount(_this7.state.taxonomies, termId);
-                        _this7._setCurrentPage(1);
-                        _this7._setCacheState(cacheName, works);
+                        _this8._setWorks(works.posts);
+                        _this8._setTaxonomiesWorkCount(_this8.state.taxonomies, termId);
+                        _this8._setCurrentPage(1);
+                        _this8._setCacheState(cacheName, works);
                     }
                 });
             }
@@ -21996,7 +22043,7 @@ var WorksBox = function (_React$Component) {
     }, {
         key: '_fetchWorksTaxonomyPage',
         value: function _fetchWorksTaxonomyPage(termId, pageNumber) {
-            var _this8 = this;
+            var _this9 = this;
 
             var cacheName = 'tax_' + termId + '_page_' + pageNumber,
                 works = this._getCache(cacheName);
@@ -22009,9 +22056,9 @@ var WorksBox = function (_React$Component) {
                     method: 'GET',
                     url: '/wp-json/wjf-portfolio/v1/works/tax/' + termId + '/page/' + pageNumber,
                     success: function success(works) {
-                        _this8._setWorks(works.posts);
-                        _this8._setTaxonomiesWorkCount(_this8.state.taxonomies, termId);
-                        _this8._setCacheState(cacheName, works);
+                        _this9._setWorks(works.posts);
+                        _this9._setTaxonomiesWorkCount(_this9.state.taxonomies, termId);
+                        _this9._setCacheState(cacheName, works);
                     }
                 });
             }
@@ -22140,17 +22187,17 @@ var WorksViewNav = function (_React$Component) {
                     _react2.default.createElement(
                         'a',
                         { href: '#previous', className: 'works-previous', onClick: this.props.previousWorkClickHandler },
-                        _react2.default.createElement('span', { className: 'dashicons dashicons-arrow-left-alt2' })
+                        _react2.default.createElement('i', { className: 'fa fa-caret-left', 'aria-hidden': 'true' })
                     ),
                     _react2.default.createElement(
                         'a',
                         { href: '#next', className: 'works-next', onClick: this.props.nextWorkClickHandler },
-                        _react2.default.createElement('span', { className: 'dashicons dashicons-arrow-right-alt2' })
+                        _react2.default.createElement('i', { className: 'fa fa-caret-right', 'aria-hidden': 'true' })
                     ),
                     _react2.default.createElement(
                         'a',
                         { href: '#close', className: 'works-close', onClick: this.props.closeWorkClickHandler },
-                        _react2.default.createElement('span', { className: 'dashicons dashicons-dismiss' })
+                        _react2.default.createElement('i', { className: 'fa fa-times-circle', 'aria-hidden': 'true' })
                     )
                 )
             );

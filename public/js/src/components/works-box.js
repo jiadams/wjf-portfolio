@@ -17,7 +17,6 @@ export default class WorksBox extends React.Component {
         super();
 
         this.state      = {
-                            showWorks: false,
                             works: [],
                             taxonomies: [{
                                 term_id: -1,
@@ -38,6 +37,14 @@ export default class WorksBox extends React.Component {
                             currentPage: 1,
                             activeTaxonomy: -1,
                         };
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if( prevState.currentView !== this.state.currentView && this.state.currentView ) {
+            $('html, body').animate({
+                scrollTop: this.worksContainer.offsetTop - 60,
+            }, 250);
+        }
     }
 
     handlePageClick(pageNumber, e) {
@@ -121,7 +128,7 @@ export default class WorksBox extends React.Component {
     render() {
         const   works = this._getWorks(),
                 taxonomies = this._getTaxonomies();
-        return (    <div className="container works-container">
+        return (    <div className="container works-container" ref = { ( ele ) => { this.worksContainer = ele } }>
                         <div className="row">
                             <ul className="taxonomy-list">
                                 { taxonomies }
@@ -138,7 +145,8 @@ export default class WorksBox extends React.Component {
                                 viewShow                    = { this.state.currentView.show } 
                                 nextWorkClickHandler        = { this.handleWorkNavClick.bind(this, 'next') }
                                 previousWorkClickHandler    = { this.handleWorkNavClick.bind(this, 'previous') }
-                                closeWorkClickHandler       = { this.handleWorkNavClick.bind(this, 'close') } />
+                                closeWorkClickHandler       = { this.handleWorkNavClick.bind(this, 'close') }
+                                />
                         </div>
                         <div className="row">
                             <div className="grid">
@@ -176,8 +184,8 @@ export default class WorksBox extends React.Component {
     _getWorks() {
         return this.state.works.map(( work ) => {
             return <Work 
-                id              = { work.ID }
                 key             = { work.ID }
+                id              = { work.ID }
                 postTitle       = { work.post_title }
                 postImage       = { work.post_image } 
                 handleWorkClick = { this.handleWorkClick.bind(this, work.ID) } />
@@ -188,8 +196,8 @@ export default class WorksBox extends React.Component {
     _getTaxonomies() {
         return this.state.taxonomies.map(( taxonomy ) => {
             return (    <TaxonomySort
-                            termId                  = { taxonomy.term_id }
                             key                     = { taxonomy.term_id }
+                            termId                  = { taxonomy.term_id }
                             termTitle               = { taxonomy.name } 
                             activeTerm              = { this.state.activeTaxonomy } 
                             taxonomyClickHandler    = { this.taxonomyClickHandler.bind(this, taxonomy.term_id) }/>);
